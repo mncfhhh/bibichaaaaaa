@@ -63,6 +63,41 @@ const material = new THREE.PointsMaterial({
 const particles = new THREE.Points(geometry, material);
 scene.add(particles);
 
+// --- Ajout du Cœur 3D au centre ---
+const heartGeometry = new THREE.BufferGeometry();
+const nbHeartParticles = 1500;
+const heartPositions = new Float32Array(nbHeartParticles * 3);
+
+for(let i = 0; i < nbHeartParticles; i++) {
+    const t = Math.random() * Math.PI * 2;
+    
+    // Équation mathématique du cœur (réduite avec * 0.15)
+    const x = 16 * Math.pow(Math.sin(t), 3) * 0.15;
+    const y = (13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t)) * 0.15;
+    const z = (Math.random() - 0.5) * 1.5; // Épaisseur du cœur
+
+    // Légère dispersion
+    const i3 = i * 3;
+    heartPositions[i3] = x + (Math.random() - 0.5) * 0.2;
+    heartPositions[i3 + 1] = y + (Math.random() - 0.5) * 0.2;
+    heartPositions[i3 + 2] = z;
+}
+
+heartGeometry.setAttribute('position', new THREE.BufferAttribute(heartPositions, 3));
+
+const heartMaterial = new THREE.PointsMaterial({
+    color: 0xff1493, // Rose très vif
+    size: 0.15,
+    sizeAttenuation: true,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false
+});
+
+const heart = new THREE.Points(heartGeometry, heartMaterial);
+heart.position.y = 4; // On le place à la bonne hauteur pour la caméra
+heart.scale.set(0, 0, 0); // On le cache au début (taille zéro)
+scene.add(heart); 
+
 // 3. Interactivité et Rendu
 let isJourneyStarted = false;
 
@@ -73,18 +108,32 @@ document.getElementById('startBtn').addEventListener('click', () => {
     isJourneyStarted = true;
 });
 
+let heartScale = 0;
+
 function animate() {
     requestAnimationFrame(animate);
 
     // Rotation globale de la galaxie
     particles.rotation.y -= 0.002;
 
-    // Effet d'aspiration / Zoom au clic
-    if (isJourneyStarted && camera.position.z > 6) {
-        camera.position.z -= 0.2;
-        camera.position.y -= 0.05;
-        // Accélère la rotation pendant le zoom
-        particles.rotation.y -= 0.01;
+    if (isJourneyStarted) {
+        if (camera.position.z > 6) {
+            // Phase 1 : Le zoom de la caméra
+            camera.position.z -= 0.2;
+            camera.position.y -= 0.05;
+            particles.rotation.y -= 0.01; // Accélère pendant le voyage
+        } else {
+            // Phase 2 : La caméra est arrivée, le cœur apparaît
+            if (heartScale < 1) {
+                heartScale += 0.02;
+            }
+            // Effet de battement fluide basé sur le temps
+            const time = Date.now() * 0.005;
+            const pulse = heartScale + Math.sin(time) * 0.08 * heartScale;
+            
+            heart.scale.set(pulse, pulse, pulse);
+            heart.rotation.y += 0.005; // Le cœur tourne très doucement
+        }
     }
 
     renderer.render(scene, camera);
