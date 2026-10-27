@@ -45,3 +45,14 @@ function animate() {
     renderer.render(scene, camera);
 }
 animate();
+
+// Interaction du bouton
+const startBtn = document.getElementById('startBtn');
+const uiContainer = document.getElementById('ui-container');
+
+startBtn.addEventListener('click', () => {
+    // Fait disparaître la carte en fondu (nécessite une petite transition CSS si tu veux, sinon ça coupe direct)
+    uiContainer.style.display = 'none'; 
+    
+    // Plus tard, on ajoutera ici l'accélération des particules ou le zoom de la caméra !
+});
