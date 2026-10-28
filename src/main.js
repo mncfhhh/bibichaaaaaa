@@ -98,6 +98,42 @@ heart.position.y = 4; // On le place à la bonne hauteur pour la caméra
 heart.scale.set(0, 0, 0); // On le cache au début (taille zéro)
 scene.add(heart); 
 
+
+// --- Textes d'Amour Orbitaux ---
+const messages = [
+    "MON AMOUR ÉTERNEL", "TU ES MAGIQUE", "JOYEUX ANNIVERSAIRE", 
+    "JE T'AIME", "MON UNIVERS", "POUR TOUJOURS"
+];
+const floatingLabels = [];
+
+messages.forEach((msg, index) => {
+    // Création de l'élément HTML pour chaque message
+    const textDiv = document.createElement('div');
+    textDiv.textContent = msg;
+    textDiv.style.position = 'absolute';
+    textDiv.style.color = '#ffb6c1'; // Rose clair
+    textDiv.style.fontFamily = 'Arial, sans-serif';
+    textDiv.style.fontWeight = 'bold';
+    textDiv.style.fontSize = '12px';
+    textDiv.style.letterSpacing = '2px';
+    textDiv.style.textShadow = '0 0 10px #ff1493'; // Effet néon
+    textDiv.style.pointerEvents = 'none'; // Ne bloque pas les clics
+    textDiv.style.display = 'none'; // Masqué au début
+    document.body.appendChild(textDiv);
+    
+    // Position initiale en cercle (rayon de 10)
+    const angle = (index / messages.length) * Math.PI * 2;
+    const radius = 10; 
+    
+    floatingLabels.push({
+        element: textDiv,
+        pos: new THREE.Vector3(Math.cos(angle) * radius, 0, Math.sin(angle) * radius),
+        angle: angle,
+        radius: radius
+    });
+});
+
+
 // 3. Interactivité et Rendu
 let isJourneyStarted = false;
 
@@ -121,18 +157,42 @@ function animate() {
             // Phase 1 : Le zoom de la caméra
             camera.position.z -= 0.2;
             camera.position.y -= 0.05;
-            particles.rotation.y -= 0.01; // Accélère pendant le voyage
+            particles.rotation.y -= 0.01; 
         } else {
-            // Phase 2 : La caméra est arrivée, le cœur apparaît
+            // Phase 2 : Le cœur apparaît et bat
             if (heartScale < 1) {
                 heartScale += 0.02;
             }
-            // Effet de battement fluide basé sur le temps
             const time = Date.now() * 0.005;
             const pulse = heartScale + Math.sin(time) * 0.08 * heartScale;
             
             heart.scale.set(pulse, pulse, pulse);
-            heart.rotation.y += 0.005; // Le cœur tourne très doucement
+            heart.rotation.y += 0.005; 
+
+            // Phase 3 : Animation des textes orbitaux
+            floatingLabels.forEach(label => {
+                label.element.style.display = 'block';
+                
+                // Faire tourner le texte
+                label.angle += 0.003;
+                label.pos.x = Math.cos(label.angle) * label.radius;
+                label.pos.z = Math.sin(label.angle) * label.radius;
+
+                // Convertir la 3D en 2D pour l'écran
+                const vector = label.pos.clone();
+                vector.project(camera);
+
+                // Afficher uniquement si le texte est dans le champ de vision
+                if (vector.z < 1) {
+                    const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
+                    const y = -(vector.y * 0.5 - 0.5) * window.innerHeight;
+                    label.element.style.left = `${x}px`;
+                    label.element.style.top = `${y}px`;
+                    label.element.style.transform = 'translate(-50%, -50%)'; 
+                } else {
+                    label.element.style.display = 'none';
+                }
+            });
         }
     }
 
