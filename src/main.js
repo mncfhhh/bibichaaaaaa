@@ -71,9 +71,9 @@ const material = new THREE.PointsMaterial({
     sizeAttenuation: true,
     depthWrite: false,
     blending: THREE.AdditiveBlending, // C'est ce qui crée l'effet lumineux !
-    vertexColors: true
+    vertexColors: true,
     map: glowTexture,
-    transparent: true,
+    transparent: true
 });
 
 const particles = new THREE.Points(geometry, material);
@@ -106,9 +106,9 @@ const heartMaterial = new THREE.PointsMaterial({
     size: 0.15,
     sizeAttenuation: true,
     blending: THREE.AdditiveBlending,
-    depthWrite: false
+    depthWrite: false,
     map: glowTexture,
-    transparent: true,
+    transparent: true
 });
 
 const heart = new THREE.Points(heartGeometry, heartMaterial);
