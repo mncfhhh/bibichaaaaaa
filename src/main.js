@@ -148,7 +148,7 @@ document.getElementById('startBtn').addEventListener('click', () => {
 // --- Icônes Interactives Cliquables ---
 const interactiveItems = [
     { icon: '💌', title: 'Amour de ma vie', text: 'Chaque jour passé à tes côtés est une aventure incroyable.' },
-    { icon: '📸', title: 'Pour Toujours', text: 'Je n\'oublierai jamais nos premiers instants ensemble.' },
+    { icon: '❤️', title: 'Pour Toujours', text: 'Je n\'oublierai jamais nos premiers instants ensemble.' },
     { icon: '🎁', title: 'Pour Toi', text: 'Mon plus beau cadeau dans cet univers, c\'est toi.' }
 ];
 const floatingIcons = [];
