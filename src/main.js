@@ -1,6 +1,20 @@
 import './style.css';
 import * as THREE from 'three';
 
+function createGlowTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 32; canvas.height = 32;
+    const context = canvas.getContext('2d');
+    const gradient = context.createRadialGradient(16, 16, 0, 16, 16, 16);
+    gradient.addColorStop(0, 'rgba(255,255,255,1)');
+    gradient.addColorStop(0.3, 'rgba(255,105,180,0.8)');
+    gradient.addColorStop(1, 'rgba(0,0,0,0)');
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, 32, 32);
+    return new THREE.CanvasTexture(canvas);
+}
+const glowTexture = createGlowTexture();
+
 // 1. Initialisation de la scène
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -58,6 +72,8 @@ const material = new THREE.PointsMaterial({
     depthWrite: false,
     blending: THREE.AdditiveBlending, // C'est ce qui crée l'effet lumineux !
     vertexColors: true
+    map: glowTexture,
+    transparent: true,
 });
 
 const particles = new THREE.Points(geometry, material);
@@ -91,6 +107,8 @@ const heartMaterial = new THREE.PointsMaterial({
     sizeAttenuation: true,
     blending: THREE.AdditiveBlending,
     depthWrite: false
+    map: glowTexture,
+    transparent: true,
 });
 
 const heart = new THREE.Points(heartGeometry, heartMaterial);
