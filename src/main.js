@@ -144,6 +144,48 @@ document.getElementById('startBtn').addEventListener('click', () => {
     isJourneyStarted = true;
 });
 
+
+// --- Icônes Interactives Cliquables ---
+const interactiveItems = [
+    { icon: '💌', title: 'Amour de ma vie', text: 'Chaque jour passé à tes côtés est une aventure incroyable.' },
+    { icon: '📸', title: 'Pour Toujours', text: 'Je n\'oublierai jamais nos premiers instants ensemble.' },
+    { icon: '🎁', title: 'Pour Toi', text: 'Mon plus beau cadeau dans cet univers, c\'est toi.' }
+];
+const floatingIcons = [];
+
+interactiveItems.forEach((item, index) => {
+    const iconElement = document.createElement('div');
+    iconElement.textContent = item.icon;
+    iconElement.style.position = 'absolute';
+    iconElement.style.fontSize = '35px';
+    iconElement.style.cursor = 'pointer';
+    iconElement.style.pointerEvents = 'auto'; // Indispensable pour pouvoir cliquer !
+    iconElement.style.display = 'none';
+    document.body.appendChild(iconElement);
+    
+    // Ouvrir la carte au clic
+    iconElement.addEventListener('click', () => {
+        document.getElementById('modal-title').textContent = item.title;
+        document.getElementById('modal-text').textContent = item.text;
+        document.getElementById('modal-container').style.display = 'flex';
+    });
+
+    const angle = (index / interactiveItems.length) * Math.PI * 2 + (Math.PI / 3); 
+    const radius = 13; // Plus éloigné que les textes
+    
+    floatingIcons.push({
+        element: iconElement,
+        pos: new THREE.Vector3(Math.cos(angle) * radius, (Math.random() - 0.5) * 6, Math.sin(angle) * radius),
+        angle: angle,
+        radius: radius
+    });
+});
+
+// Fermer la carte
+document.getElementById('closeModal').addEventListener('click', () => {
+    document.getElementById('modal-container').style.display = 'none';
+});
+
 let heartScale = 0;
 
 function animate() {
@@ -172,17 +214,13 @@ function animate() {
             // Phase 3 : Animation des textes orbitaux
             floatingLabels.forEach(label => {
                 label.element.style.display = 'block';
-                
-                // Faire tourner le texte
                 label.angle += 0.003;
                 label.pos.x = Math.cos(label.angle) * label.radius;
                 label.pos.z = Math.sin(label.angle) * label.radius;
 
-                // Convertir la 3D en 2D pour l'écran
                 const vector = label.pos.clone();
                 vector.project(camera);
 
-                // Afficher uniquement si le texte est dans le champ de vision
                 if (vector.z < 1) {
                     const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
                     const y = -(vector.y * 0.5 - 0.5) * window.innerHeight;
@@ -191,6 +229,27 @@ function animate() {
                     label.element.style.transform = 'translate(-50%, -50%)'; 
                 } else {
                     label.element.style.display = 'none';
+                }
+            });
+
+            // Phase 4 : Animation des Icônes
+            floatingIcons.forEach(icon => {
+                icon.element.style.display = 'block';
+                icon.angle += 0.002;
+                icon.pos.x = Math.cos(icon.angle) * icon.radius;
+                icon.pos.z = Math.sin(icon.angle) * icon.radius;
+
+                const vector = icon.pos.clone();
+                vector.project(camera);
+
+               if (vector.z < 1) {
+                    const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
+                    const y = -(vector.y * 0.5 - 0.5) * window.innerHeight;
+                    icon.element.style.left = `${x}px`;
+                    icon.element.style.top = `${y}px`;
+                    icon.element.style.transform = 'translate(-50%, -50%)'; 
+                } else {
+                    icon.element.style.display = 'none';
                 }
             });
         }
